@@ -2,9 +2,9 @@
 
 Internship project at Digimytch Innovation Ecosystem  
 Platform: AirCare+  
-Specialty: Embedded Systems / IoT
+Specialty: Embedded Systems / IoT   
 Intern: Amani Arouri  
-Date: June 2026
+Date: June 2026   
 
 ## What I did this week
 
