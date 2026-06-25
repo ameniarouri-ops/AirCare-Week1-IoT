@@ -1,30 +1,56 @@
-# AirCare+ IoT Sensor Node — Week 1
+# AirCare+ — IoT Air Quality Monitoring System
 
-Internship project at Digimytch Innovation Ecosystem  
-Platform: AirCare+  
-Specialty: Embedded Systems / IoT   
-Intern: Amani Arouri  
-Date: June 2026   
+**Intern:** Amani Arouri  
+**Specialty:** Embedded Systems / IoT Engineering  
+**Platform:** AirCare+ (Innovation Ecosystem — Digimytch)  
+**Duration:** Month 1 (4 Weeks)
 
-## What I did this week
+---
 
-- Installed Arduino IDE and PlatformIO
-- Researched ESP32 and DHT22 sensor datasheets
-- Wrote a Hello World firmware that blinks the LED and prints to serial monitor
-- Documented the hardware component list with prices
-- Created this GitHub repository
+## Project Overview
+AirCare+ is an IoT air quality monitoring system built around the ESP32 microcontroller and DHT22 temperature/humidity sensor. Data flows from the sensor through MQTT to a Python subscriber and is stored in CSV format.
 
-## Hardware Used
+---
 
-- ESP32-WROOM-32 (main microcontroller)
-- DHT22 AM2302 (temperature & humidity sensor)
-- PMS5003 (PM2.5 air quality sensor)
-- MB-102 Breadboard
-- Jumper Wires
-- Micro USB Cable
+## Week 1 — Environment Setup
+- Arduino IDE + PlatformIO installed
+- ESP32 and DHT22 datasheet research
+- Hello World LED blink firmware
+- Hardware component list with prices
+- GitHub repository created
 
-## Tools Used
+## Week 2 — Sensor Integration
+- ESP32 + DHT22 wiring simulated in Wokwi
+- DHT22 firmware built successfully in PlatformIO
+- Python serial logger → CSV file created
+- MQTT protocol research + connection diagram
+- Annotated wiring schematic documented
 
-- Arduino IDE 2.0
-- PlatformIO IDE (VS Code)
-- Git & GitHub
+## Week 3 — Connectivity & Data Pipeline
+- Mosquitto MQTT broker installed and tested
+- ESP32 firmware updated to publish to MQTT
+- Python MQTT subscriber script created
+- WiFi provisioning methods compared
+- Data flow architecture diagram created
+
+## Week 4 — Reliability & Documentation
+- WiFi reconnect + watchdog timer added to firmware
+- Sensor accuracy test conducted
+- 1-page system summary document written
+- Demo video recorded
+- GitHub Issues created for Month 2
+
+---
+
+## Tech Stack
+- ESP32-WROOM-32
+- DHT22 Sensor
+- PlatformIO + Arduino Framework
+- Mosquitto MQTT Broker
+- Python + Paho-MQTT
+- Wokwi Simulator
+
+---
+
+## Contact
+amaniarouri636@gmail.com
