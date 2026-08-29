@@ -3,9 +3,11 @@ import csv
 import datetime
 
 CSV_FILE = "mqtt_log.csv"
-BROKER = "localhost"
-PORT = 1883
+BROKER = "ad2707b4f5904efb9e949f4ef799303b.s1.eu.hivemq.cloud"
+PORT = 8883
 TOPIC = "aircare/#"
+MQTT_USER = "esp32device"
+MQTT_PASS = "AirCare2026_Esp32!"
 
 def on_connect(client, userdata, flags, rc):
     print("Connected to MQTT Broker!")
@@ -21,6 +23,8 @@ def on_message(client, userdata, msg):
         writer.writerow([timestamp, topic, value])
 
 client = mqtt.Client()
+client.username_pw_set(MQTT_USER, MQTT_PASS)
+client.tls_set()
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(BROKER, PORT, 60)
