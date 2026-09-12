@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>AirCare+ Setup</title>
+<style>
+  :root{
+    --accent:#1A73E8;
+    --accent-hover:#1667D0;
+    --ink:#1D1D1F;
+    --text-2:#48484A;
+    --muted:#6E6E73;
+    --faint:#8E8E93;
+    --line:#E8E8ED;
+    --input-border:#D8DBE0;
+    --canvas:#F5F5F7;
+    --selected:#F0F6FE;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--canvas);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.45;
+  }
+
+  /* ---------- stage / framing ---------- */
+  .stage{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 14px;gap:12px;}
+  .caption{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;text-align:center;}
+  .hint{font-size:13px;color:var(--muted);text-align:center;max-width:420px;}
+  .disclaimer{font-size:12px;color:var(--faint);text-align:center;max-width:440px;line-height:1.55;}
+  .disclaimer b{color:var(--muted);}
+
+  /* ---------- device frame ---------- */
+  .device{
+    width:100%;max-width:420px;background:#fff;border:1px solid var(--line);
+    border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,0.06);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .statusbar{
+    display:flex;align-items:center;justify-content:space-between;flex:none;
+    background:#fff;padding:7px 16px 6px;font-size:13px;font-weight:600;color:var(--text-2);
+    border-bottom:1px solid #F0F0F2;
+  }
+  .statusbar .icons{display:flex;align-items:center;gap:6px;color:var(--text-2);}
+  .urlbar{
+    display:flex;align-items:center;gap:10px;flex:none;
+    background:#F7F7F9;padding:8px 12px;border-bottom:1px solid #F0F0F2;
+  }
+  .urlbar .nav{color:var(--faint);display:flex;align-items:center;}
+  .urlbar .url{
+    flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:5px 12px;font-size:13px;color:var(--text-2);text-align:center;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .urlbar .url span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .reload{color:var(--faint);display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:4px;border-radius:6px;}
+  .reload:hover{color:var(--muted);}
+
+  /* ---------- card header: wordmark + preview badge ---------- */
+  .cardhead{
+    display:flex;align-items:center;justify-content:space-between;flex:none;
+    padding:14px 16px;border-bottom:1px solid #F0F0F2;background:#fff;
+  }
+  .wordmark{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+  .wordmark b{color:var(--accent);font-weight:700;}
+  .preview-chip{
+    font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--faint);background:#FAFAFC;border:1px solid #DCDCE0;border-radius:4px;padding:2px 6px;
+  }
+
+  /* ---------- portal pages ---------- */
+  .portal{padding:20px 16px 26px;}
+
+  h1{font-size:20px;font-weight:600;text-align:center;letter-spacing:-.01em;}
+  .sub{font-size:13px;color:var(--muted);text-align:center;margin-top:4px;}
+  .sub code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--text-2);background:#F2F2F5;border-radius:4px;padding:1px 5px;}
+
+  /* message callout (authentic .msg structure) */
+  .msg{
+    padding:11px 13px;margin:16px 0;border:1px solid #ECECF0;border-left:3px solid #C7C7CC;
+    border-radius:6px;background:#F8F8FA;color:var(--text-2);font-size:13.5px;line-height:1.5;
+  }
+  .msg.P{border-left-color:var(--accent);background:#F6F9FE;border-color:#E8F0FC;}
+  .msg strong{color:var(--ink);font-weight:600;}
+
+  /* ---------- buttons ---------- */
+  button{
+    width:100%;border:0;border-radius:8px;background:var(--accent);color:#fff;
+    font-size:16px;font-weight:600;padding:0;line-height:46px;cursor:pointer;font-family:inherit;
+    transition:background .15s;
+  }
+  button:hover{background:var(--accent-hover);}
+  button:active{opacity:.92;}
+  button:focus-visible{outline:2px solid rgba(26,115,232,.4);outline-offset:2px;}
+  button.secondary{background:#fff;color:var(--text-2);border:1px solid var(--input-border);line-height:44px;font-size:15px;}
+  button.secondary:hover{background:#FAFAFA;border-color:#C9CDD3;}
+  .spacer{height:10px;}
+
+  /* ---------- network scan list ---------- */
+  .netlist{border:1px solid var(--line);border-radius:8px;background:#fff;transition:opacity .2s;}
+  .netlist.scanning{opacity:.4;}
+  .net{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    padding:13px 14px;border:0;border-bottom:1px solid #F2F2F5;border-radius:0;
+    background:#fff;cursor:pointer;line-height:normal;font-size:15px;font-weight:400;
+    transition:background .12s;
+  }
+  .net:last-child{border-bottom:0;}
+  .net:hover{background:#FAFAFC;}
+  .net.selected{background:var(--selected);}
+  .net .ssid{flex:1;font-size:15px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .net .check{width:14px;height:14px;color:var(--accent);opacity:0;flex:none;transition:opacity .12s;}
+  .net.selected .check{opacity:1;}
+  .net .lock{color:var(--faint);display:flex;align-items:center;flex:none;}
+  .net .sig{flex:none;}
+
+  /* ---------- wifi form ---------- */
+  label.field{
+    display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--muted);margin:14px 0 5px;
+  }
+  input[type=text],input[type=password]{
+    width:100%;padding:11px 12px;border:1px solid var(--input-border);border-radius:8px;
+    font-size:15px;font-family:inherit;color:var(--ink);background:#fff;outline:none;
+    transition:border-color .15s;
+  }
+  input:focus{border-color:var(--accent);}
+  input:disabled{opacity:.5;background:#FAFAFA;}
+  .pass-wrap{position:relative;}
+  .pass-wrap input{padding-right:58px;}
+  .show-toggle{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    width:auto;border:0;background:none;color:var(--muted);font-size:14px;font-weight:500;
+    line-height:normal;padding:6px 8px;cursor:pointer;border-radius:6px;
+  }
+  .show-toggle:hover{color:var(--ink);background:none;}
+
+  /* ---------- connecting state ---------- */
+  .connect-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:16px 0 6px;}
+  .spinner{
+    width:30px;height:30px;border-radius:50%;
+    border:3px solid #E6E6EB;border-top-color:var(--accent);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .connect-label{font-size:14px;color:var(--text-2);}
+  .connect-label b{font-weight:600;}
+
+  /* ---------- view transitions (functional only) ---------- */
+  .view{transition:opacity .24s ease, transform .24s ease;}
+  .v-out{opacity:0;transform:translateY(8px);}
+  .v-in-start{opacity:0;transform:translateY(8px);}
+  [hidden]{display:none !important;}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);
+    background:var(--text-2);color:#fff;font-size:13px;padding:9px 16px;border-radius:8px;
+    opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:480px){
+    .stage{padding:0;}
+    .caption,.hint{display:none;}
+    .device{max-width:none;min-height:100vh;border-radius:0;border:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="caption">AirCare+ · ESP32 Provisioning — Captive Portal Preview</div>
+
+  <div class="device">
+    <!-- phone status bar -->
+    <div class="statusbar">
+      <span id="clock">18:35</span>
+      <span class="icons">
+        <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true">
+          <rect x="0" y="7" width="3" height="5" rx="0.6"/><rect x="4.3" y="5" width="3" height="7" rx="0.6"/>
+          <rect x="8.6" y="2.5" width="3" height="9.5" rx="0.6"/><rect x="12.9" y="0" width="3" height="12" rx="0.6" opacity=".35"/>
+        </svg>
+        <svg width="22" height="11" viewBox="0 0 25 12" aria-hidden="true">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity=".4"/>
+          <rect x="2.5" y="2.5" width="14" height="7" rx="1.6" fill="currentColor"/>
+          <path d="M23 4v4c1.2-.3 2-1 2-2s-.8-1.7-2-2z" fill="currentColor" opacity=".4"/>
+        </svg>
+      </span>
+    </div>
+
+    <!-- browser chrome -->
+    <div class="urlbar">
+      <span class="nav">
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 1.5L1.5 7.5l6 6"/></svg>
+      </span>
+      <div class="url">
+        <svg width="10" height="12" viewBox="0 0 12 14" fill="none" stroke="#8E8E93" stroke-width="1.6" aria-hidden="true">
+          <rect x="1" y="6" width="10" height="7" rx="1.6"/><path d="M3.5 6V4.2a2.5 2.5 0 0 1 5 0V6"/>
+        </svg>
+        <span id="urltext">192.168.4.1/</span>
+      </div>
+      <button class="reload" id="reloadbtn" title="Reload page" aria-label="Reload page">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9"/><path d="M13.7 1.6v2.8h-2.8"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- card header: wordmark + preview badge -->
+    <div class="cardhead">
+      <span class="wordmark">AirCare<b>+</b></span>
+      <span class="preview-chip">Preview</span>
+    </div>
+
+    <!-- ================= portal pages ================= -->
+    <div class="portal">
+
+      <!-- ROOT MENU (route: /) -->
+      <div class="view" id="view-root">
+        <h1>WiFi Setup</h1>
+        <p class="sub">ESP32 Air Quality Monitor · SoftAP <code>AirCarePlus-Setup</code></p>
+
+        <div class="msg">No AP set</div>
+
+        <form data-go="wifi"><button type="submit">Configure WiFi</button></form>
+        <div class="spacer"></div>
+        <form data-note="The Info page (/info) is not simulated in this preview."><button type="submit" class="secondary">Info</button></form>
+        <div class="spacer"></div>
+        <form data-note="Exit (/exit) closes the config portal on a real device."><button type="submit" class="secondary">Exit</button></form>
+      </div>
+
+      <!-- WIFI CONFIG (route: /wifi) -->
+      <div class="view" id="view-wifi" hidden>
+        <div class="netlist" id="netlist"></div>
+        <div class="spacer"></div>
+        <form id="wificfg" method="POST" action="wifisave">
+          <label class="field" for="s">SSID</label>
+          <input id="s" name="s" type="text" maxlength="32" autocorrect="off" autocapitalize="none" placeholder="" autocomplete="off">
+          <label class="field" for="p">Password</label>
+          <div class="pass-wrap">
+            <input id="p" name="p" type="password" maxlength="64" autocomplete="off">
+            <button type="button" class="show-toggle" id="showtoggle">Show</button>
+          </div>
+          <div class="spacer"></div>
+          <button type="submit">Save</button>
+        </form>
+        <div class="spacer"></div>
+        <form id="refreshform"><button type="submit" class="secondary" id="refreshbtn">Refresh</button></form>
+        <div class="msg" id="wifistatus">No AP set</div>
+      </div>
+
+      <!-- SAVING / CONNECTING (route: /wifisave) -->
+      <div class="view" id="view-saving" hidden>
+        <div class="msg P">
+          <strong>Saving Credentials</strong><br>
+          Trying to connect ESP to network.<br>
+          If it fails reconnect to AP to try again
+        </div>
+
+        <div class="connect-wrap">
+          <div class="spinner" role="status" aria-label="Connecting"></div>
+          <p class="connect-label">Connecting to <b id="connectssid"></b>…</p>
+        </div>
+
+        <div class="spacer"></div>
+        <form data-go="wifi"><button type="submit" class="secondary">Back</button></form>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="hint">This preview is interactive — tap a network to fill in the SSID, use <b>Show</b> to reveal the password, then press <b>Save</b>.</p>
+  <p class="disclaimer">
+    <b>Portal preview.</b> Faithful reconstruction of the configuration portal served by the
+    <b>WiFiManager</b> library (github.com/tzapu/WiFiManager) on the ESP32's
+    <b>AirCarePlus-Setup</b> access point at <b>192.168.4.1</b>, based on the library's documented
+    default interface (<code>wm_strings_en.h</code>). Demonstration only — not a live capture from a physical device.
+  </p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   WiFiManager (tzapu) captive portal — preview behaviour
+   Mirrors the library's real client-side logic:
+   - c(l): tapping a network fills the SSID field, disables the
+     password field for open networks, focuses the password box
+   - f() : "Show" toggle switches password visibility
+   ================================================================ */
+var networks = [
+  { ssid: 'SKY4B2F',          pct: 92, bars: 4, lock: true  },
+  { ssid: 'HomeNet-2.4GHz',   pct: 78, bars: 4, lock: true  },
+  { ssid: 'TP-Link_A9F1',     pct: 66, bars: 3, lock: true  },
+  { ssid: 'Vodafone-Home',    pct: 52, bars: 2, lock: true  },
+  { ssid: 'CoffeeLab Guest',  pct: 38, bars: 1, lock: false },
+  { ssid: 'FRITZ!Box 7430',   pct: 24, bars: 1, lock: true  }
+];
+
+var checkSVG = '<svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7-8"/></svg>';
+var lockSVG  = '<svg class="lock" width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="6" width="10" height="7" rx="1.5"/><path d="M3.5 6V4.2a2.5 2.5 0 0 1 5 0V6"/></svg>';
+
+/* minimal line-style wifi arcs (iOS-like): arcs filled = strength */
+function sigSVG(level){
+  var on = '#48484A', off = '#D9D9DE';
+  function arc(d, i){ return '<path d="' + d + '" stroke="' + (i < level ? on : off) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>'; }
+  var s = '<svg class="sig" width="17" height="14" viewBox="0 0 17 14" aria-hidden="true">';
+  if(level >= 1) s += '<circle cx="8.5" cy="12" r="1.2" fill="' + on + '"/>'; else s += '<circle cx="8.5" cy="12" r="1.2" fill="' + off + '"/>';
+  s += arc('M6 9.4a3.5 3.5 0 0 1 5 0', level >= 2);
+  s += arc('M3.8 7a6.5 6.5 0 0 1 9.4 0', level >= 3);
+  s += arc('M1.6 4.6a9.4 9.4 0 0 1 13.8 0', level >= 4);
+  return s + '</svg>';
+}
+
+function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function renderNets(){
+  var list = document.getElementById('netlist');
+  networks.sort(function(a,b){ return b.pct - a.pct; });
+  var html = '';
+  networks.forEach(function(n){
+    html += '<button type="button" class="net" data-ssid="' + esc(n.ssid) + '" data-lock="' + (n.lock ? '1' : '0') + '">'
+          + '<span class="ssid">' + esc(n.ssid) + '</span>'
+          + checkSVG
+          + (n.lock ? lockSVG : '')
+          + sigSVG(n.bars)
+          + '</button>';
+  });
+  list.innerHTML = html;
+}
+
+/* c(l) — tap a scanned network */
+document.getElementById('netlist').addEventListener('click', function(e){
+  var btn = e.target.closest('.net'); if(!btn) return;
+  document.querySelectorAll('.net').forEach(function(n){ n.classList.remove('selected'); });
+  btn.classList.add('selected');
+  var ssid = btn.getAttribute('data-ssid');
+  var locked = btn.getAttribute('data-lock') === '1';
+  var s = document.getElementById('s'), p = document.getElementById('p');
+  s.value = ssid;
+  p.disabled = !locked;          /* authentic: password disabled for open networks */
+  if(locked) p.focus(); else p.value = '';
+});
+
+/* f() — Show / Hide password */
+document.getElementById('showtoggle').addEventListener('click', function(){
+  var p = document.getElementById('p');
+  var show = p.type === 'password';
+  p.type = show ? 'text' : 'password';
+  this.textContent = show ? 'Hide' : 'Show';
+});
+
+/* ---------- view transitions: simple fade/slide only ---------- */
+var current = 'root';
+var transitioning = false;
+
+function show(view){
+  if(transitioning || view === current) return;
+  transitioning = true;
+
+  var titles = { root: 'AirCare+ Setup', wifi: 'Config ESP', saving: 'Credentials saved' };
+  var urls   = { root: '192.168.4.1/', wifi: '192.168.4.1/wifi', saving: '192.168.4.1/wifisave' };
+  document.title = titles[view];
+  document.getElementById('urltext').textContent = urls[view];
+
+  var curEl = document.getElementById('view-' + current);
+  var nextEl = document.getElementById('view-' + view);
+
+  curEl.classList.add('v-out');
+  setTimeout(function(){
+    curEl.hidden = true;
+    curEl.classList.remove('v-out');
+    nextEl.hidden = false;
+    nextEl.classList.add('v-in-start');
+    void nextEl.offsetWidth;                 /* force reflow so the transition runs */
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        nextEl.classList.remove('v-in-start');
+        setTimeout(function(){ transitioning = false; }, 260);
+      });
+    });
+  }, 240);
+
+  current = view;
+}
+
+document.querySelectorAll('form[data-go]').forEach(function(f){
+  f.addEventListener('submit', function(e){ e.preventDefault(); show(f.getAttribute('data-go')); });
+});
+document.querySelectorAll('form[data-note]').forEach(function(f){
+  f.addEventListener('submit', function(e){ e.preventDefault(); toast(f.getAttribute('data-note')); });
+});
+
+/* Save -> /wifisave page */
+document.getElementById('wificfg').addEventListener('submit', function(e){
+  e.preventDefault();
+  var ssid = document.getElementById('s').value.trim();
+  if(ssid === ''){
+    toast('Pick a network from the scan list first.');
+    return;
+  }
+  document.getElementById('connectssid').textContent = ssid;
+  show('saving');
+});
+
+/* Refresh -> rescan with slight RSSI jitter, like a live scan */
+document.getElementById('refreshform').addEventListener('submit', function(e){
+  e.preventDefault();
+  var list = document.getElementById('netlist');
+  var btn = document.getElementById('refreshbtn');
+  list.classList.add('scanning');
+  btn.textContent = 'Scanning…'; btn.disabled = true;
+  setTimeout(function(){
+    networks.forEach(function(n){
+      n.pct = Math.max(8, Math.min(99, Math.round(n.pct + (Math.random() * 8 - 4))));
+      n.bars = n.pct >= 75 ? 4 : n.pct >= 55 ? 3 : n.pct >= 30 ? 2 : 1;
+    });
+    list.classList.remove('scanning');
+    renderNets();
+    btn.textContent = 'Refresh'; btn.disabled = false;
+  }, 650);
+});
+
+document.getElementById('reloadbtn').addEventListener('click', function(){ show('root'); });
+
+/* ---------- toast ---------- */
+var toastTimer;
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+
+/* ---------- clock ---------- */
+function tick(){
+  var d = new Date();
+  document.getElementById('clock').textContent =
+    ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+}
+tick(); setInterval(tick, 10000);
+
+renderNets();
+</script>
+</body>
+</html>
