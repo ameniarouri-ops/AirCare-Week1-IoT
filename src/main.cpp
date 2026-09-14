@@ -4,10 +4,10 @@
 #include <PubSubClient.h>
 #include <DHT.h>
 
-const char* mqtt_server = "ad2707b4f5904efb9e949f4ef799303b.s1.eu.hivemq.cloud";
+const char* mqtt_server = "a8984e032441467797687728dde49d14.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
 const char* mqtt_user = "esp32device";
-const char* mqtt_pass = "AirCare2026_Esp32!";
+const char* mqtt_pass = "AirCare2026!";
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
